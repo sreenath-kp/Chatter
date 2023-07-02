@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:chatapp/widgets/user_image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,9 +21,20 @@ class _AuthScreenState extends State<AuthScreen> {
 
   var _enteredEmail = '';
   var _enteredPassword = '';
+  File? _selectedImage;
+
+  // check for image select status and show error
   void _submit() async {
     if (!_formKey.currentState!.validate()) {
       return;
+    }
+    if (!isLogin && _selectedImage == null) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image not selected'),
+        ),
+      );
     }
     _formKey.currentState!.save();
     try {
@@ -27,17 +42,33 @@ class _AuthScreenState extends State<AuthScreen> {
         // Login
         final userCredentials = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print(userCredentials);
+        if (kDebugMode) {
+          print(userCredentials);
+        }
       } else {
         // Sign up
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print(userCredentials);
+        if (_selectedImage != null) {
+          final storageRef = FirebaseStorage.instance
+              .ref()
+              .child('User_images')
+              .child('${userCredentials.user!.uid}.jpeg');
+          await storageRef.putFile(_selectedImage!);
+          final imageUrl = await storageRef.getDownloadURL();
+          print(imageUrl);
+        }
+        if (kDebugMode) {
+          print(userCredentials);
+        }
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? 'Authentication Failed')));
+        SnackBar(
+          content: Text(e.message ?? 'Authentication Failed'),
+        ),
+      );
     }
   }
 
@@ -72,7 +103,12 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (!isLogin) const UserImagePicker(),
+                        if (!isLogin)
+                          UserImagePicker(
+                            onPickImage: (pickedImage) {
+                              _selectedImage = pickedImage;
+                            },
+                          ),
                         TextFormField(
                           style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
