@@ -1,3 +1,4 @@
+import 'package:chatapp/widgets/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -31,6 +32,7 @@ class _AuthScreenState extends State<AuthScreen> {
         // Sign up
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
+        print(userCredentials);
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -70,6 +72,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (!isLogin) const UserImagePicker(),
                         TextFormField(
                           style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
