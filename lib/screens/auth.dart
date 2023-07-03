@@ -48,6 +48,7 @@ class _AuthScreenState extends State<AuthScreen> {
         // Login
         final userCredentials = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
+        print(userCredentials);
       } else {
         // Sign up
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
@@ -60,7 +61,7 @@ class _AuthScreenState extends State<AuthScreen> {
         final imageUrl = await storageRef.getDownloadURL();
         await FirebaseFirestore.instance
             .collection('users')
-            .doc('userCredentials.user!.uid')
+            .doc(userCredentials.user!.uid)
             .set({
           'username': _enteredUsername,
           'email': _enteredEmail,

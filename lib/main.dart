@@ -23,11 +23,12 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Chatter',
       theme: ThemeData.dark().copyWith(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF111921),
-            primary: const Color(0xFF111921),
-          )),
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF111921),
+          primary: const Color(0xFF111921),
+        ),
+      ),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
