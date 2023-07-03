@@ -1,5 +1,5 @@
-import 'package:chatapp/widgets/chat_messages.dart';
-import 'package:chatapp/widgets/new_message.dart';
+import 'package:Chatter/widgets/chat_messages.dart';
+import 'package:Chatter/widgets/new_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: EdgeInsets.all(5.0),
           child: CircleAvatar(
             radius: 60,
-            foregroundImage: AssetImage('assets/icon.jpg'),
+            foregroundImage: AssetImage('assets/icon.png'),
           ),
         ),
         actions: [

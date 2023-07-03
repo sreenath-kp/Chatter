@@ -1,9 +1,7 @@
 import 'dart:io';
-
-import 'package:chatapp/widgets/user_image_picker.dart';
+import 'package:Chatter/widgets/user_image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -46,9 +44,8 @@ class _AuthScreenState extends State<AuthScreen> {
       });
       if (isLogin) {
         // Login
-        final userCredentials = await _firebase.signInWithEmailAndPassword(
+        await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print(userCredentials);
       } else {
         // Sign up
         final userCredentials = await _firebase.createUserWithEmailAndPassword(

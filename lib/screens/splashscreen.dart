@@ -10,7 +10,9 @@ class SplashScreen extends StatelessWidget {
         title: const Text("Chatter"),
       ),
       body: const Center(
-        child: Text("loading.."),
+        child: CircularProgressIndicator(
+          color: Color(0xFF3490FF),
+        ),
       ),
     );
   }
