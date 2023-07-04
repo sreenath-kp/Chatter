@@ -1,6 +1,6 @@
-import 'package:Chatter/screens/auth.dart';
-import 'package:Chatter/screens/chatscreen.dart';
-import 'package:Chatter/screens/splashscreen.dart';
+import 'package:chatter/screens/auth.dart';
+import 'package:chatter/screens/chatscreen.dart';
+import 'package:chatter/screens/splashscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
