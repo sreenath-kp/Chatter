@@ -1,9 +1,11 @@
 import 'package:chatter/widgets/chat_messages.dart';
 import 'package:chatter/widgets/new_message.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -30,14 +32,93 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void getUrl() async {
     final userid = FirebaseAuth.instance.currentUser!.uid;
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('User_images')
-        .child('$userid.jpeg');
-    final geturl = (await ref.getDownloadURL()).toString();
+    final ref =
+        FirebaseStorage.instance.ref().child('User_images/$userid.jpeg');
+    final geturl = await ref.getDownloadURL();
     setState(() {
       url = geturl;
     });
+  }
+
+  void deleteDialog() {
+    bool isdeleting = false;
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        shape: const LinearBorder(),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: !isdeleting
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Do you really want to delete the account',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    ButtonBar(
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('No'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              isdeleting = true;
+                            });
+                            deleteAccount();
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    )
+                  ],
+                )
+              : const SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(
+                    color: Colors.redAccent,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  void deleteAccount() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userid = user!.uid;
+    final ref =
+        FirebaseStorage.instance.ref().child('User_images/$userid.jpeg');
+    try {
+      await ref.delete();
+    } catch (e) {
+      print('failed to delete image');
+      print(e);
+    }
+    try {
+      // delete chat history to do
+      print(FirebaseFirestore.instance.collection('chat').where(userid));
+      await FirebaseFirestore.instance.collection('users').doc(userid).delete();
+    } catch (e) {
+      print('failed to delete chat history');
+      print(e);
+    }
+    try {
+      await user.delete();
+    } catch (e) {
+      print('failed to delete user');
+      print(e);
+    }
   }
 
   @override
@@ -54,14 +135,35 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         actions: [
-          IconButton(
-              onPressed: () {
+          PopupMenuButton(
+            onSelected: (value) {
+              if (value == 'exit') {
+                SystemNavigator.pop();
+              }
+              if (value == 'signout') {
                 FirebaseAuth.instance.signOut();
-              },
-              icon: Icon(
-                Icons.exit_to_app,
-                color: Theme.of(context).colorScheme.secondary,
-              ))
+              }
+              if (value == 'delete') {
+                deleteDialog();
+              }
+            },
+            itemBuilder: (BuildContext bc) {
+              return const [
+                PopupMenuItem(
+                  value: 'signout',
+                  child: Text("Sign Out"),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text("Delete Account"),
+                ),
+                PopupMenuItem(
+                  value: 'exit',
+                  child: Text("Exit"),
+                )
+              ];
+            },
+          )
         ],
       ),
       body: const Column(
