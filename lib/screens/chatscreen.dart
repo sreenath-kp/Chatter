@@ -34,67 +34,59 @@ class _ChatScreenState extends State<ChatScreen> {
     final userid = FirebaseAuth.instance.currentUser!.uid;
     final ref =
         FirebaseStorage.instance.ref().child('User_images/$userid.jpeg');
-    final geturl = await ref.getDownloadURL();
-    setState(() {
-      url = geturl;
-    });
+    try {
+      final geturl = await ref.getDownloadURL();
+      setState(() {
+        url = geturl;
+      });
+    } catch (e) {
+      print('Failed to fetch profile. please login again.');
+    }
   }
 
   void deleteDialog() {
-    bool isdeleting = false;
     showDialog(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         shape: const LinearBorder(),
         child: Padding(
-          padding: const EdgeInsets.only(top: 20.0),
-          child: !isdeleting
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Do you really want to delete the account',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    ButtonBar(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('No'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              isdeleting = true;
-                            });
-                            deleteAccount();
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Yes'),
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              : const SizedBox(
-                  height: 50,
-                  width: 50,
-                  child: CircularProgressIndicator(
-                    color: Colors.redAccent,
-                  ),
+          padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Do you really want to delete the account ?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
                 ),
+              ),
+              ButtonBar(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('No'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      deleteAccount();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Yes'),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void deleteAccount() async {
+  Future<void> deleteAccount() async {
     final user = FirebaseAuth.instance.currentUser;
     final userid = user!.uid;
     final ref =
@@ -107,7 +99,13 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     try {
       // delete chat history to do
-      print(FirebaseFirestore.instance.collection('chat').where(userid));
+      final chatRef = FirebaseFirestore.instance.collection('chat');
+
+      await chatRef.where('userId', isEqualTo: userid).get().then((value) {
+        for (var element in value.docs) {
+          element.reference.delete();
+        }
+      });
       await FirebaseFirestore.instance.collection('users').doc(userid).delete();
     } catch (e) {
       print('failed to delete chat history');

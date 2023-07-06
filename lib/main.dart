@@ -1,4 +1,4 @@
-import 'package:chatter/screens/auth.dart';
+import 'package:chatter/screens/loginscreen.dart';
 import 'package:chatter/screens/chatscreen.dart';
 import 'package:chatter/screens/splashscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
