@@ -3,7 +3,7 @@
   <h1>Chatter</h1>
 </div>
 
-Chatter is a simple yet powerful chat app built using Flutter and Firebase. It connects groups of people with real-time messaging.
+Chatter is a simple yet powerful chat app built using Flutter and Firebase. It connects people with real-time messaging.
 
 ## Features
 
