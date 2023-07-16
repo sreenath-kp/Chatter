@@ -23,7 +23,7 @@ class _NewMessageState extends State<NewMessage> {
     if (enteredMessage.trim().isEmpty) {
       return;
     }
-    FocusScope.of(context).unfocus();
+    // FocusScope.of(context).unfocus();
     _messageController.clear();
 
     final user = FirebaseAuth.instance.currentUser!;
